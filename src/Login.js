@@ -15,28 +15,50 @@ function Login() {
     if (!name) {
       return alert("Please enter a full name before registering");
     }
-    auth.createUserWithEmailAndPassword(email, password).then((userAuth) => {
-      userAuth.user
-        .updateProfile({
-          displayName: name,
-          profileURL: profilePic,
-        })
-        .then(() =>
-          dispatch(
-            login({
-              email: userAuth.user.email,
-              uid: userAuth.user.uid,
-              displayName: name,
-              photoUrl: profilePic,
-            })
-          )
-        )
-        .catch((error) => alert(error.message));
-    });
+
+    auth
+      .createUserWithEmailAndPassword(email, password)
+      .then((userAuth) => {
+        console.log("register: ", userAuth.user);
+        console.log(profilePic);
+        userAuth.user
+          .updateProfile({
+            displayName: name,
+            photoUrl: profilePic,
+          })
+          .then(() => {
+            console.log("after update");
+            console.log(userAuth.user);
+            dispatch(
+              login({
+                email: userAuth.user.email,
+                uid: userAuth.user.uid,
+                displayName: name,
+                photoUrl: profilePic,
+              })
+            );
+          });
+      })
+      .catch((error) => alert(error));
   };
 
-  const logintoApp = (e) => {
+  const loginToApp = (e) => {
+    console.log("here!");
     e.preventDefault();
+    auth
+      .signInWithEmailAndPassword(email, password)
+      .then((userAuth) => {
+        console.log("login: ", userAuth.user);
+        dispatch(
+          login({
+            email: userAuth.user.email,
+            uid: userAuth.user.uid,
+            displayName: userAuth.user.displayName,
+            photoUrl: userAuth.user.photoUrl,
+          })
+        );
+      })
+      .catch((error) => alert(error));
   };
 
   return (
@@ -71,7 +93,7 @@ function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit" onclick={logintoApp}>
+        <button type="submit" onClick={loginToApp}>
           Sign In
         </button>
       </form>
